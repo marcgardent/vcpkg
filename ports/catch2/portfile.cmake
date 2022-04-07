@@ -6,24 +6,32 @@ vcpkg_from_github(
     HEAD_REF devel
 )
 
-string(COMPARE EQUAL "${VCPKG_LIBRARY_LINKAGE}" "static" BUILD_STATIC)
+vcpkg_from_github(
+    OUT_SOURCE_PATH SOURCE_PATH
+    REPO catchorg/Catch2
+    REF ${GIT_REF}
+    SHA512 ${GIT_SHA512}
+    HEAD_REF master
+)
 
-vcpkg_cmake_configure(
-    SOURCE_PATH "${SOURCE_PATH}"
+vcpkg_configure_cmake(
+    SOURCE_PATH ${SOURCE_PATH}
+    PREFER_NINJA
     OPTIONS
         -DBUILD_TESTING=OFF
         -DCATCH_BUILD_EXAMPLES=OFF
         -DCATCH_INSTALL_DOCS=OFF
-        -DCATCH_BUILD_STATIC_LIBRARY=${BUILD_STATIC}
 )
 
-vcpkg_cmake_install()
-file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include/catch2/benchmark/internal" "${CURRENT_PACKAGES_DIR}/debug/include/catch2/generators/internal" "${CURRENT_PACKAGES_DIR}/include/catch2/benchmark/internal" "${CURRENT_PACKAGES_DIR}/include/catch2/generators/internal")
+vcpkg_install_cmake()
 
-file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/lib/pkgconfig")
-file(RENAME "${CURRENT_PACKAGES_DIR}/debug/share/pkgconfig/catch2-with-main.pc" "${CURRENT_PACKAGES_DIR}/lib/pkgconfig/catch2-with-main.pc")
-file(RENAME "${CURRENT_PACKAGES_DIR}/debug/share/pkgconfig/catch2.pc" "${CURRENT_PACKAGES_DIR}/lib/pkgconfig/catch2.pc")
-file(RENAME "${CURRENT_PACKAGES_DIR}/share/pkgconfig/catch2-with-main.pc" "${CURRENT_PACKAGES_DIR}/lib/pkgconfig/catch2-with-main.pc")
-file(RENAME "${CURRENT_PACKAGES_DIR}/share/pkgconfig/catch2.pc" "${CURRENT_PACKAGES_DIR}/lib/pkgconfig/catch2.pc")
-vcpkg_fixup_pkgconfig()
-file(REMOVE_RECURSE empty directories left by the above renames)
+vcpkg_fixup_cmake_targets(CONFIG_PATH lib/cmake/Catch2)
+
+file(REMOVE_RECURSE
+    ${CURRENT_PACKAGES_DIR}/debug/include
+    ${CURRENT_PACKAGES_DIR}/debug/share
+    ${CURRENT_PACKAGES_DIR}/include/catch2/benchmark/internal
+    ${CURRENT_PACKAGES_DIR}/include/catch2/generators/internal
+)
+file(INSTALL ${CMAKE_CURRENT_LIST_DIR}/usage DESTINATION ${CURRENT_PACKAGES_DIR}/share/${PORT})
+file(INSTALL ${SOURCE_PATH}/LICENSE.txt DESTINATION ${CURRENT_PACKAGES_DIR}/share/${PORT} RENAME copyright)
