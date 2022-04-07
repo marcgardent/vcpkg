@@ -1,11 +1,9 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO catchorg/Catch2
-    REF v2.13.8
-    SHA512 68a45efa47beb3c85d2d7b8a8eba89b8ec1664b4a72bb223227fef1632778aeaf5cf5cc09f40e47aef50426c8661c7d6a69c2dab0b88fbbf7d9a6b2974d6e32e
+    REF v3.0.0-preview4
+    SHA512 3a879da07dd5f4e2bcd0d5e1be0de5b0128930c3a5a343805b308ddc788618bb0a9d5ea6de673cf8745f7997eebafabb65d29ee39120bf82218f8df0f47be039
     HEAD_REF devel
-    PATCHES 
-        fix-install-path.patch
 )
 
 string(COMPARE EQUAL "${VCPKG_LIBRARY_LINKAGE}" "static" BUILD_STATIC)
@@ -20,24 +18,12 @@ vcpkg_cmake_configure(
 )
 
 vcpkg_cmake_install()
-if (NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "release")
-    file(RENAME "${CURRENT_PACKAGES_DIR}/share/Catch2" "${CURRENT_PACKAGES_DIR}/share/catch2_")
-    file(RENAME "${CURRENT_PACKAGES_DIR}/share/catch2_" "${CURRENT_PACKAGES_DIR}/share/catch2")
-endif()
-if (NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "debug")
-    file(RENAME "${CURRENT_PACKAGES_DIR}/debug/share/Catch2" "${CURRENT_PACKAGES_DIR}/debug/share/catch2_")
-    file(RENAME "${CURRENT_PACKAGES_DIR}/debug/share/catch2_" "${CURRENT_PACKAGES_DIR}/debug/share/catch2")
-endif()
+file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include/catch2/benchmark/internal" "${CURRENT_PACKAGES_DIR}/debug/include/catch2/generators/internal" "${CURRENT_PACKAGES_DIR}/include/catch2/benchmark/internal" "${CURRENT_PACKAGES_DIR}/include/catch2/generators/internal")
 
-vcpkg_cmake_config_fixup(CONFIG_PATH "lib/cmake/Catch2")
+file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/lib/pkgconfig")
+file(RENAME "${CURRENT_PACKAGES_DIR}/debug/share/pkgconfig/catch2-with-main.pc" "${CURRENT_PACKAGES_DIR}/lib/pkgconfig/catch2-with-main.pc")
+file(RENAME "${CURRENT_PACKAGES_DIR}/debug/share/pkgconfig/catch2.pc" "${CURRENT_PACKAGES_DIR}/lib/pkgconfig/catch2.pc")
+file(RENAME "${CURRENT_PACKAGES_DIR}/share/pkgconfig/catch2-with-main.pc" "${CURRENT_PACKAGES_DIR}/lib/pkgconfig/catch2-with-main.pc")
+file(RENAME "${CURRENT_PACKAGES_DIR}/share/pkgconfig/catch2.pc" "${CURRENT_PACKAGES_DIR}/lib/pkgconfig/catch2.pc")
 vcpkg_fixup_pkgconfig()
-
-file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
-file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/share")
-
-if(NOT EXISTS "${CURRENT_PACKAGES_DIR}/include/catch2/catch.hpp")
-    message(FATAL_ERROR "Main includes have moved. Please update the forwarder.")
-endif()
-
-file(WRITE "${CURRENT_PACKAGES_DIR}/include/catch.hpp" "#include <catch2/catch.hpp>")
-file(INSTALL "${SOURCE_PATH}/LICENSE.txt" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}" RENAME copyright)
+file(REMOVE_RECURSE empty directories left by the above renames)
