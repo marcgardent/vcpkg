@@ -6,14 +6,6 @@ vcpkg_from_github(
     HEAD_REF devel
 )
 
-vcpkg_from_github(
-    OUT_SOURCE_PATH SOURCE_PATH
-    REPO catchorg/Catch2
-    REF ${GIT_REF}
-    SHA512 ${GIT_SHA512}
-    HEAD_REF master
-)
-
 vcpkg_configure_cmake(
     SOURCE_PATH ${SOURCE_PATH}
     PREFER_NINJA
@@ -33,5 +25,4 @@ file(REMOVE_RECURSE
     ${CURRENT_PACKAGES_DIR}/include/catch2/benchmark/internal
     ${CURRENT_PACKAGES_DIR}/include/catch2/generators/internal
 )
-file(INSTALL ${CMAKE_CURRENT_LIST_DIR}/usage DESTINATION ${CURRENT_PACKAGES_DIR}/share/${PORT})
 file(INSTALL ${SOURCE_PATH}/LICENSE.txt DESTINATION ${CURRENT_PACKAGES_DIR}/share/${PORT} RENAME copyright)
