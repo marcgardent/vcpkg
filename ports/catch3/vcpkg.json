@@ -1,6 +1,6 @@
 {
   "name": "catch3",
-  "version-semver": "v3.0.0-preview.4",
+  "version-semver": "3.0.0-preview.4",
   "description": "A modern, header-only test framework for unit testing.",
   "homepage": "https://github.com/catchorg/Catch2",
   "dependencies": [
